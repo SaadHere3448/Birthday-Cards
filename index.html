@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+</head>
+
+<style>
+    /* Reset and Background */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: radial-gradient(circle at center, #1a2a6c, #0b132b);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: 'Playfair Display', serif;
+        overflow: hidden;
+        perspective: 1500px;
+    }
+
+    /* The Scene */
+    .scene {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Envelope Base */
+    .envelope {
+        position: relative;
+        width: 380px;
+        height: 260px;
+        background: linear-gradient(135deg, #16224d, #0f1a3a);
+        border-radius: 6px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.05);
+        cursor: grab;
+        transition: transform 0.3s ease, opacity 0.5s ease;
+        z-index: 10;
+    }
+
+    .envelope:active {
+        cursor: grabbing;
+    }
+
+    /* Flaps */
+    .flap {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        z-index: 3;
+    }
+
+    .top-flap {
+        border-width: 0 190px 130px 190px;
+        border-color: transparent transparent #16224d transparent;
+        top: 0;
+        left: 0;
+        z-index: 4;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.8s;
+        transform-origin: top;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    }
+
+    .left-flap {
+        border-width: 130px 0 130px 190px;
+        border-color: transparent transparent transparent #0d1530;
+        top: 0;
+        left: 0;
+        z-index: 2;
+    }
+
+    .right-flap {
+        border-width: 130px 190px 130px 0;
+        border-color: transparent #0d1530 transparent transparent;
+        top: 0;
+        right: 0;
+        z-index: 2;
+    }
+
+    .bottom-flap {
+        border-width: 130px 190px 0 190px;
+        border-color: transparent transparent transparent transparent;
+        border-bottom-color: #16224d;
+        border-top-color: #16224d;
+        bottom: 0;
+        left: 0;
+        z-index: 5;
+    }
+
+    /* The Letter Inside (Placeholder) */
+    .letter {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 340px;
+        height: 220px;
+        background: linear-gradient(to bottom, #fdfbf7, #f4f0e6);
+        border-radius: 4px;
+        z-index: 1;
+        transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 1s, opacity 0.4s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), inset 0 0 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: 1px solid #e0dccf;
+    }
+
+    .letter-text {
+        font-size: 22px;
+        color: #4a3f35;
+        text-align: center;
+        font-family: 'Great Vibes', cursive;
+        line-height: 1.5;
+    }
+
+    /* Decorative Elements - Stars */
+    .stars {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 6;
+        color: #ffd700;
+        font-size: 14px;
+        line-height: 1.5;
+        letter-spacing: 8px;
+        pointer-events: none;
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        opacity: 0.9;
+    }
+
+    .stars span:nth-child(odd) {
+        font-size: 20px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Decorative Elements - Flowers */
+    .flowers {
+        position: absolute;
+        bottom: -25px;
+        right: -25px;
+        z-index: 6;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .flower {
+        position: absolute;
+        background: radial-gradient(circle, #ffd700, #b8860b);
+        border-radius: 50%;
+        box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .f1 {
+        width: 50px;
+        height: 50px;
+        bottom: 0;
+        right: 0;
+    }
+
+    .f2 {
+        width: 35px;
+        height: 35px;
+        bottom: 25px;
+        right: 35px;
+    }
+
+    .f3 {
+        width: 30px;
+        height: 30px;
+        bottom: -10px;
+        right: 50px;
+    }
+
+    /* The Wax Seal */
+    .wax-seal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70px;
+        height: 70px;
+        background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b, #8b6508);
+        border-radius: 50%;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.3);
+        cursor: grab;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.4s ease;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        user-select: none;
+    }
+
+    .wax-seal:active {
+        cursor: grabbing;
+        transform: translate(-50%, -50%) scale(0.95);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .seal-inner {
+        font-size: 28px;
+        color: #fff;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- THE BIG IMAGE POP-UP --- */
+    .image-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(11, 19, 43, 0.85);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.8s ease;
+        padding: 20px;
+    }
+
+    .image-modal.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 85vh;
+        border-radius: 12px;
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), 0 0 80px rgba(255, 215, 0, 0.2);
+        border: 4px solid #ffd700;
+        background: #fff;
+        transform: scale(0.5) translateY(100px);
+        transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-modal.show .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-image {
+        display: block;
+        max-width: 100%;
+        max-height: 85vh;
+        object-fit: contain;
+        width: auto;
+        height: auto;
+    }
+
+    /* Confetti Container */
+    #confetti-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 200;
+        overflow: hidden;
+    }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #ffd700;
+        opacity: 0;
+        animation: fall 3s linear forwards;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    /* Open State Animations for Envelope */
+    .envelope.open .top-flap {
+        transform: rotateX(180deg);
+        z-index: 1;
+    }
+
+    .envelope.open .letter {
+        transform: translateY(-140px);
+        z-index: 6;
+        opacity: 0;
+        /* Hide the placeholder letter */
+    }
+
+    .envelope.open .wax-seal {
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    .envelope.opened-fully {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 500px) {
+        .envelope {
+            width: 320px;
+            height: 220px;
+        }
+
+        .top-flap {
+            border-width: 0 160px 110px 160px;
+        }
+
+        .left-flap {
+            border-width: 110px 0 110px 160px;
+        }
+
+        .right-flap {
+            border-width: 110px 160px 110px 0;
+        }
+
+        .bottom-flap {
+            border-width: 110px 160px 0 160px;
+        }
+
+        .letter {
+            width: 280px;
+            height: 180px;
+            top: 15px;
+            left: 15px;
+        }
+
+        .modal-content {
+            max-width: 95vw;
+            max-height: 80vh;
+        }
+    }
+</style>
+
+<body>
+
+    <div class="scene">
+        <!-- Confetti Layer -->
+        <div id="confetti-container"></div>
+
+        <!-- The Envelope Container -->
+        <div class="envelope" id="envelope">
+
+            <!-- The Placeholder Letter Inside -->
+            <div class="letter" id="letter">
+                <div class="letter-content">
+                    <p class="letter-text">Happy Birthday!<br><span
+                            style="font-size: 14px; font-family: 'Playfair Display', serif; font-style: italic;">Opening
+                            your surprise...</span></p>
+                </div>
+            </div>
+
+            <!-- The Envelope Flaps -->
+            <div class="flap top-flap"></div>
+            <div class="flap left-flap"></div>
+            <div class="flap right-flap"></div>
+            <div class="flap bottom-flap"></div>
+
+            <!-- The Decorative Elements -->
+            <div class="stars">
+                <span>★</span><span>✦</span><span>★</span><span>✧</span><span>★</span>
+                <span>✦</span><span>★</span><span>✧</span><span>★</span><span>✦</span>
+            </div>
+
+            <div class="flowers">
+                <div class="flower f1"></div>
+                <div class="flower f2"></div>
+                <div class="flower f3"></div>
+            </div>
+
+            <!-- The Wax Seal (Draggable) -->
+            <div class="wax-seal" id="waxSeal">
+                <div class="seal-inner">🎂</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- THE BIG IMAGE POP-UP -->
+    <div class="image-modal" id="imageModal">
+        <div class="modal-content">
+            <!-- Replace 'birthday.jpg' with your own image path -->
+            <img src="haris_birthday.jpeg" alt="Happy Birthday" class="modal-image"
+                onerror="this.src='https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelope = document.getElementById('envelope');
+            const waxSeal = document.getElementById('waxSeal');
+            const confettiContainer = document.getElementById('confetti-container');
+            const imageModal = document.getElementById('imageModal');
+
+            let isDragging = false;
+            let startY = 0;
+            let currentY = 0;
+            let isOpen = false;
+
+            // Prevent default drag behavior on the seal
+            waxSeal.addEventListener('dragstart', (e) => e.preventDefault());
+
+            // Mouse Down - Start dragging
+            waxSeal.addEventListener('mousedown', (e) => {
+                if (isOpen) return;
+                isDragging = true;
+                startY = e.clientY;
+                waxSeal.style.cursor = 'grabbing';
+            });
+
+            // Mouse Move - Track dragging distance
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                currentY = e.clientY;
+                const diff = startY - currentY;
+
+                // If dragged up more than 40 pixels, open the envelope
+                if (diff > 40) {
+                    openEnvelope();
+                }
+            });
+
+            // Mouse Up - Stop dragging
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (!isOpen) waxSeal.style.cursor = 'grab';
+            });
+
+            // Touch Support for Mobile
+            waxSeal.addEventListener('touchstart', (e) => {
+                if (isOpen) return;
+                isDragging = true;
+                startY = e.touches[0].clientY;
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentY = e.touches[0].clientY;
+                const diff = startY - currentY;
+
+                if (diff > 40) {
+                    openEnvelope();
+                }
+            });
+
+            document.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // Function to open the envelope
+            function openEnvelope() {
+                if (isOpen) return;
+                isOpen = true;
+                isDragging = false;
+
+                // 1. Open the envelope flaps
+                envelope.classList.add('open');
+
+                // 2. Trigger confetti burst
+                createConfetti();
+
+                // 3. Wait for the envelope animation to finish, then show the big image
+                setTimeout(() => {
+                    envelope.classList.add('opened-fully'); // Fade out the envelope
+                    imageModal.classList.add('show');       // Show the big image
+                }, 1200); // 1.2 seconds delay to let the letter slide up
+            }
+
+            // Confetti Generator
+            function createConfetti() {
+                const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#f7fff7', '#ffe66d', '#ff9f1c'];
+
+                for (let i = 0; i < 80; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+
+                    // Randomize properties
+                    const size = Math.random() * 10 + 6 + 'px';
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const left = Math.random() * 100 + '%';
+                    const animationDelay = Math.random() * 0.5 + 's';
+                    const animationDuration = Math.random() * 2 + 2 + 's';
+
+                    confetti.style.width = size;
+                    confetti.style.height = size;
+                    confetti.style.backgroundColor = color;
+                    confetti.style.left = left;
+                    confetti.style.animationDelay = animationDelay;
+                    confetti.style.animationDuration = animationDuration;
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                    confettiContainer.appendChild(confetti);
+
+                    // Remove confetti after animation ends to keep DOM clean
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+
+            // Optional: Click the seal to open as well (fallback)
+            waxSeal.addEventListener('click', () => {
+                if (!isOpen) {
+                    openEnvelope();
+                }
+            });
+
+            // Click the big image to close it and reset
+            imageModal.addEventListener('click', () => {
+                imageModal.classList.remove('show');
+                setTimeout(() => {
+                    envelope.classList.remove('open', 'opened-fully');
+                    isOpen = false;
+                    waxSeal.style.cursor = 'grab';
+                }, 800);
+            });
+        });
+    </script>
+</body>
+
+</html>
